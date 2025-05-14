@@ -16,27 +16,82 @@ namespace WebAPI.Domain.Services
 
         public async Task<IEnumerable<Country>> GetCountriesAsync()
         {
-            return await _context.Countries.ToListAsync();
+            try
+            {
+                var countries = await _context.Countries.ToListAsync();
+                return countries;
+            }
+            catch (DbUpdateException DbUpdateException)
+            {
+                throw new Exception(DbUpdateException.InnerException?.Message ?? DbUpdateException.Message);
+            }
+
         }
 
-        public Task<Country> GetCountryByIdAsync(Guid id)
+        public async Task<Country> GetCountryByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var country = await _context.Countries.FirstOrDefaultAsync(c => c.Id == id);
+                return country;
+            }
+            catch (DbUpdateException DbUpdateException)
+            {
+                throw new Exception(DbUpdateException.InnerException?.Message ?? DbUpdateException.Message);
+            }
+
         }
 
-        public Task<Country> CreateCountryAsync(Country country)
+        public async Task<Country> CreateCountryAsync(Country country)
         {
-            throw new NotImplementedException();
+            try
+            {
+                country.Id = Guid.NewGuid();
+                country.CreatedDate = DateTime.Now;
+                _context.Countries.Add(country); // el Add() crea el objeto en el contexto de la BD
+                await _context.SaveChangesAsync(); // guarda el pais en la tabla Country
+                return country;
+            }
+            catch (DbUpdateException DbUpdateException)
+            {
+                throw new Exception(DbUpdateException.InnerException?.Message ?? DbUpdateException.Message);
+            }
         }
 
-        public Task<Country> EditCountryAsync(Country country)
+        public async Task<Country> EditCountryAsync(Country country)
         {
-            throw new NotImplementedException();
+            try
+            {
+                country.ModifiedDate = DateTime.Now;
+                _context.Countries.Update(country);
+                await _context.SaveChangesAsync();
+                return country;
+            }
+            catch (DbUpdateException DbUpdateException)
+            {
+                throw new Exception(DbUpdateException.InnerException?.Message ?? DbUpdateException.Message);
+            }
         }
 
-        public Task<Country> DeleteCountryAsync(Guid id)
+        public async Task<Country> DeleteCountryAsync(Guid id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var country = await GetCountryByIdAsync(id);
+
+                if (country == null)
+                {
+                    return null;
+                }
+
+                _context.Countries.Remove(country);
+                await _context.SaveChangesAsync();
+                return country;
+            }
+            catch (DbUpdateException DbUpdateException)
+            {
+                throw new Exception(DbUpdateException.InnerException?.Message ?? DbUpdateException.Message);
+            }
         }
     }
 }
