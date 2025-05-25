@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ShoppingAPI_Jueves_2025.DAL;
 using ShoppingAPI_Jueves_2025.DAL.Entities;
+using WebAPI.Domain.Interfaces;
+using WebAPI.Domain.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,10 @@ builder.Services.AddControllers();
 
 // Cadena de conexion a la base de datos
 builder.Services.AddDbContext<DataBaseContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Contenedor de dependencias
+builder.Services.AddScoped<ICountryService, CountryService>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
